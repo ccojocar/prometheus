@@ -24,6 +24,7 @@ import (
 	"github.com/prometheus/prometheus/discovery/targetgroup"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/model/relabel"
+	"github.com/prometheus/prometheus/util/strutil"
 )
 
 // Alertmanager holds Alertmanager endpoint information.
@@ -39,7 +40,7 @@ func (a alertmanagerLabels) url() *url.URL {
 	return &url.URL{
 		Scheme: a.Get(model.SchemeLabel),
 		Host:   a.Get(model.AddressLabel),
-		Path:   a.Get(pathLabel),
+		Path:   strutil.NormalizeLabelValue(a.Get(pathLabel)),
 	}
 }
 

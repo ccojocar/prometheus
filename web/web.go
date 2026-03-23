@@ -778,7 +778,7 @@ func (h *Handler) consoles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	name := route.Param(ctx, "filepath")
 
-	file, err := http.Dir(h.options.ConsoleTemplatesPath).Open(name)
+	file, err := httputil.SafeResolvePath(h.options.ConsoleTemplatesPath, name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
