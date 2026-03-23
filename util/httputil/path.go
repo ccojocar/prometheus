@@ -14,7 +14,7 @@
 package httputil
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,7 +28,7 @@ import (
 // access outside the designated directory tree.
 func SafeResolvePath(basePath, requestPath string) (*os.File, error) {
 	if strings.ContainsRune(requestPath, 0) {
-		return nil, fmt.Errorf("invalid null byte in path")
+		return nil, errors.New("invalid null byte in path")
 	}
 
 	// Normalize path separators and remove redundant elements.
@@ -36,19 +36,19 @@ func SafeResolvePath(basePath, requestPath string) (*os.File, error) {
 
 	// Reject explicit directory traversal sequences.
 	if strings.Contains(cleaned, "..") {
-		return nil, fmt.Errorf("path contains traversal sequence")
+		return nil, errors.New("path contains traversal sequence")
 	}
 
 	// Reject absolute paths to prevent direct file access.
 	if filepath.IsAbs(cleaned) {
-		return nil, fmt.Errorf("absolute paths not allowed")
+		return nil, errors.New("absolute paths not allowed")
 	}
 
 	// Resolve the full path for the containment check.
 	checkPath := filepath.Join(basePath, cleaned)
 	absBase := filepath.Clean(basePath) + string(os.PathSeparator)
 	if !strings.HasPrefix(checkPath+string(os.PathSeparator), absBase) {
-		return nil, fmt.Errorf("path escapes base directory")
+		return nil, errors.New("path escapes base directory")
 	}
 
 	// Normalize any percent-encoded characters from request
